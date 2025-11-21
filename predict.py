@@ -12,8 +12,8 @@ if __name__ == "__main__":
     # this can of course be improved with input(), or with api or whatever
     new_input = pd.DataFrame([{
         "Category": "MAM",
-        "km4week": 50,
-        "sp4week": 10,
+        "km4week": 23.94,
+        "sp4week": 10.71,
         "CrossTraining": "",
         "Wall21": 2.08,
         "Name": "Lode Dockx",
@@ -35,3 +35,5 @@ if __name__ == "__main__":
             print(f"According to the {model_name} predictor, you ran or will run the marathon in: {format_hours(pred[0])}")
         except Exception as e:
             print(f"Error with model {model_name}: {e}")
+
+    print("My actual marathon time was 4:14:41. I started very well but crashed the second part. All be it, the linear regressor did perform okay.")
