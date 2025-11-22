@@ -32,14 +32,12 @@ def preprocess_new_data(df_new, scaler):
     )
     df = fill_na_with_median(df)
 
-    # Ensure all training columns exist
     training_columns = joblib.load("models/training_columns.pkl")
     for col in training_columns:
         if col not in df.columns:
             df[col] = 0
     df = df[training_columns]
 
-    # Scale numeric columns
     scale_cols = config.get("columns_to_scale", [])
     if scale_cols:
         df[scale_cols] = scaler.transform(df[scale_cols])
@@ -64,15 +62,9 @@ def format_hours(hours_float):
     return f"{h}h {m}m {s}s"
 
 def compare_model_performance(results_dict):
-    """
-    Takes a dictionary:
-        { "model_name": { "rmse": ..., "mse": ..., "r2": ... }, ... }
-    Returns a clean pandas DataFrame.
-    """
+
     comparison = pd.DataFrame(results_dict).T
-    print("\n================ Model Performance Comparison ================\n")
     print(comparison)
-    print("\n==============================================================\n")
     return comparison
 
 def save_model(model, filename, directory="models"):
@@ -81,3 +73,21 @@ def save_model(model, filename, directory="models"):
     path = os.path.join(directory, filename)
     joblib.dump(model, path)
     print(f"Model saved: {path}")
+
+def get_category(gender: str, age: int) -> str:
+    gender = gender.lower()
+
+    if gender == "male":
+        if age < 40:
+            return "MAM"  # Male Athletes under 40 years
+        elif 40 <= age <= 45:
+            return "M40"  # Male Athletes between 40 and 45
+        else:
+            return "M45"
+    else:
+        return "WAM"
+
+
+def hms_to_hours(hms: str) -> float:
+    h, m, s = map(int, hms.split(":"))
+    return h + m / 60 + s / 3600

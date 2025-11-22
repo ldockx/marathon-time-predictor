@@ -2,7 +2,6 @@ import os
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-#import logging --> transform print statements to logging
 
 
 """
@@ -25,12 +24,12 @@ config = {
 }
 
 
-def drop_irrelevant_columns(df, columns_to_drop): #['id', 'Marathon', 'Name', 'CATEGORY']
+def drop_irrelevant_columns(df, columns_to_drop): 
     
     result = df.drop(columns=columns_to_drop, errors='ignore')
     return result
 
-def one_hot_encode(df, columns_to_encode): #['Category']
+def one_hot_encode(df, columns_to_encode): 
 
     result = pd.get_dummies(df, columns=columns_to_encode, dtype=int)
 
@@ -40,9 +39,9 @@ def extract_numeric_column(df, column_name, fillna_value=0, dtype=float):
 
     df[column_name] =  (
         df[column_name]
-        .str.extract(r"(\d+)")   # extract digits
-        .astype(dtype)            # convert type
-        .fillna(fillna_value)     # fill missing values
+        .str.extract(r"(\d+)")  
+        .astype(dtype)            
+        .fillna(fillna_value)     
     )
 
     return df
@@ -61,15 +60,10 @@ def fill_na_with_median(df):
     
     return df
 
-#YOU MAY ONLY SCALE FEATURES AFTER THE SPLIT    !!!
-#you should fit the scaler only on the x_train data, then transform x_test
 def split_data(df, target_column, test_size=0.2, random_state=8):
-    
-    # seperate features and target
+
     X = df.drop(columns=[target_column])
     y = df[target_column]
-
-    # split into train/test sets
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
@@ -83,7 +77,6 @@ def scale_features(X_train, X_test, columns_to_scale):
 
     X_train = X_train.copy()
     X_test = X_test.copy()
-    
     scaler = StandardScaler()
     X_train[columns_to_scale] = scaler.fit_transform(X_train[columns_to_scale])
     X_test[columns_to_scale] = scaler.transform(X_test[columns_to_scale])
@@ -94,23 +87,13 @@ def scale_features(X_train, X_test, columns_to_scale):
 def create_features():#df, config):
 
     global df, config
-
-    # drop irrelevant columns
     df = drop_irrelevant_columns(df, config.get('columns_to_drop', []))
-    
-    # one-hot encode categorical features
     df = one_hot_encode(df, config.get('columns_to_encode', []))
-
-    # extract numeric column
     df = extract_numeric_column(df, config.get('columns_to_numeric', []))
-    
-    # dnsure numeric columns are properly typed
     df = ensure_numeric_columns_are_numeric(
         df, 
         config.get('columns_to_ensure_numeric', [])
     )
-    
-    # fill missing values
     df = fill_na_with_median(df)
     
     # Split data BEFORE scaling --> import, check scaler logic if forgotten
@@ -121,7 +104,6 @@ def create_features():#df, config):
         random_state=config.get('random_state', 8)
     )
     
-    # scale features (fit on train, transform both)
     X_train, X_test, scaler = scale_features(
         X_train, 
         X_test, 
